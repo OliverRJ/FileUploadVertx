@@ -45,12 +45,11 @@ public class PostFileUpload  implements Handler<RoutingContext> {
 
   private String handleOneFile(FileSystem fs, FileUpload upload) {
     String uploadedFile = upload.uploadedFileName();
-    String[] newDestination = new String[2];
-    newDestination[0] = "uploads/" +upload.fileName();
-    fs.moveBlocking(uploadedFile, newDestination[0]);
-    String fileName2 = uploadedFile.substring(uploadedFile.lastIndexOf("\\") + 1);
-    LOG.info("uploadedFile {} and newDestination {} and fileName2 {}", uploadedFile, newDestination[0], fileName2);
-    return newDestination[1];
+    String root = uploadedFile.substring(0,uploadedFile.lastIndexOf("\\") );
+    String newDestination = root + "/" + upload.fileName();
+    fs.moveBlocking(uploadedFile, newDestination);
+    LOG.info("uploadedFile: {} and newDestination: {}", uploadedFile, newDestination);
+    return newDestination;
   }
 
   private boolean isHandleUpload(FileUpload upload, String startKey) {
