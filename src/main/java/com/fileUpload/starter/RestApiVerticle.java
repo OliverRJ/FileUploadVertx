@@ -23,25 +23,30 @@ public class RestApiVerticle extends AbstractVerticle {
   private void startHttpServerAndAttachRoutes(final Promise<Void> startPromise) {
 
     final Router restApi = Router.router(vertx);
-    restApi.route().handler(BodyHandler.create()
-      .setUploadsDirectory("uploads")
-      .setBodyLimit(INT_BODY_LIMIT)
-      .setHandleFileUploads(true));
-    restApi.route("/").handler( routingContext -> {
-      routingContext.
-        response()
-          .putHeader("content-type", "text/html")
-        .end("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\">\n"
-          + "    <div>\n"
-          + "        <label for=\"name\">Select a file:</label>\n"
-          + "        <input type=\"file\" name=\"file\" />\n"
-          + "    </div>\n" + "    <div class=\"button\">\n"
-          + "        <button type=\"submit\">Send</button>\n"
-          + "    </div>" + "</form>");
-    });
+//    restApi.route().handler(BodyHandler.create()
+//      .setUploadsDirectory("uploads")
+//      .setBodyLimit(INT_BODY_LIMIT)
+//      .setHandleFileUploads(true));
+//    restApi.route("/").handler( routingContext -> {
+//      routingContext.
+//        response()
+//          .putHeader("content-type", "text/html")
+//        .end("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\">\n"
+//          + "    <div>\n"
+//          + "        <label for=\"name\">Select a file:</label>\n"
+//          + "        <input type=\"file\" name=\"file\" />\n"
+//          + "    </div>\n" + "    <div class=\"button\">\n"
+//          + "        <button type=\"submit\">Send</button>\n"
+//          + "    </div>" + "</form>");
+//    });
 
     restApi.route()
-      .handler(BodyHandler.create())
+      .handler(BodyHandler.create()
+        .setUploadsDirectory("uploads")
+        .setBodyLimit(INT_BODY_LIMIT)
+        .setHandleFileUploads(true)
+        .setMergeFormAttributes(true)
+      )
       .failureHandler(handleFailure());
     FileRestApi.attach(restApi);
 

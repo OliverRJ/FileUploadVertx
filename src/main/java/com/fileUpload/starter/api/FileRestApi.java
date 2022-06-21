@@ -12,5 +12,4 @@ public class FileRestApi {
     parent.post(path).handler(BodyHandler.create().setMergeFormAttributes(true));
     parent.post(path).handler(new PostFileUpload());
   }
-
 }

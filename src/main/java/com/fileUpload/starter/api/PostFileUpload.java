@@ -3,6 +3,8 @@ package com.fileUpload.starter.api;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -23,11 +25,13 @@ public class PostFileUpload  implements Handler<RoutingContext> {
   public void handle(final RoutingContext routingContext) {
     FileSystem fileSystem = routingContext.vertx().fileSystem();
     List<FileUpload> uploads = routingContext.fileUploads();
+    String fileName = "";
     // multipart form field: file upload section.
     for(FileUpload fileUpload : uploads) {
       // we actually upload to a file with a generated filename
       try {
-        LOG.info("uploaded file detected for field name {}, fielsize {}, dataContentType {}", fileUpload.fileName(), fileUpload.size(),fileUpload.contentType());
+        fileName = fileUpload.fileName();
+        LOG.info("uploaded file detected for field name {}, fielsize {}, dataContentType {}",fileName , fileUpload.size(),fileUpload.contentType());
         String relativePath = handleOneFile(fileSystem, fileUpload);
         LOG.info("relativePath {} ",relativePath);
       } catch (Exception e) {
@@ -35,12 +39,11 @@ public class PostFileUpload  implements Handler<RoutingContext> {
       }
     }
 
-    /*final JsonArray response = new JsonArray();
+    final JsonArray response = new JsonArray();
     response
-      .add(new JsonObject().put("symbol",  routingContext.body().asJsonObject()));
-    routingContext.response().end(response.toBuffer());*/
+      .add(new JsonObject().put("Archivo subido", fileName ));
+    routingContext.response().end(response.toBuffer());
 
-    routingContext.response().end();
   }
 
   private String handleOneFile(FileSystem fs, FileUpload upload) {
