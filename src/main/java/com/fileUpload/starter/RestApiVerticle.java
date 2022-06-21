@@ -4,6 +4,7 @@ import com.fileUpload.starter.api.FileRestApi;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
+import io.vertx.core.http.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -17,13 +18,40 @@ public class RestApiVerticle extends AbstractVerticle {
 
   @Override
   public void start(final Promise<Void> startPromise) throws Exception {
-    startHttpServerAndAttachRoutes(startPromise);
+    //startHttpServerAndAttachRoutes(startPromise);
+    vertx.createHttpServer().requestHandler(req -> {
+      if (req.uri().equals("/")) {
+        // Serve the index page
+        req.response().sendFile("index.html");
+      } else if (req.uri().startsWith("/upload")) {
+        req.setExpectMultipart(true);
+        req.uploadHandler(upload -> {
+          upload.exceptionHandler(cause -> {
+            req.response().setChunked(true).end("Upload failed");
+          });
+          upload.endHandler(v -> {
+            req.response().setChunked(true).end("Successfully uploaded to " + upload.filename());
+          });
+          upload.streamToFileSystem("uploads/" +upload.filename());
+        });
+      } else {
+        req.response().setStatusCode(404);
+      }
+      req.response().end();
+
+    }).listen(8888, http -> {
+      if (http.succeeded()) {
+        startPromise.complete();
+        LOG.info("HTTP server started on port 8888");
+      } else {
+        startPromise.fail(http.cause());
+      }
+    });
   }
 
   private void startHttpServerAndAttachRoutes(final Promise<Void> startPromise) {
 
     final Router restApi = Router.router(vertx);
-    
     restApi.route()
       .handler(BodyHandler.create()
         .setUploadsDirectory("uploads")
@@ -46,7 +74,7 @@ public class RestApiVerticle extends AbstractVerticle {
         }
       });
   }
-  private Handler<RoutingContext> handleFailure() {
+  public static Handler<RoutingContext> handleFailure() {
     return errorContext -> {
       if (errorContext.response().ended()) {
         // Ignore completed response
