@@ -1,10 +1,9 @@
 package com.fileUpload.starter;
 
-import com.fileUpload.starter.api.FileRestApi;
+import com.fileUpload.starter.api.FileManagementRestApi;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.http.*;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -18,7 +17,13 @@ public class RestApiVerticle extends AbstractVerticle {
 
   @Override
   public void start(final Promise<Void> startPromise) throws Exception {
-    //startHttpServerAndAttachRoutes(startPromise);
+    //1. Using Vertx Core
+    //startHttpServerVertxCoreExample(startPromise);
+    //2. Using Vertx Web, recommended
+    startHttpServerVertxWebExample(startPromise);
+  }
+
+  private void startHttpServerVertxCoreExample(Promise<Void> startPromise) {
     vertx.createHttpServer().requestHandler(req -> {
       if (req.uri().equals("/")) {
         // Serve the index page
@@ -48,19 +53,18 @@ public class RestApiVerticle extends AbstractVerticle {
       }
     });
   }
-
-  private void startHttpServerAndAttachRoutes(final Promise<Void> startPromise) {
+  private void startHttpServerVertxWebExample(final Promise<Void> startPromise) {
 
     final Router restApi = Router.router(vertx);
     restApi.route()
       .handler(BodyHandler.create()
-        .setUploadsDirectory("uploads")
-        .setBodyLimit(INT_BODY_LIMIT)
-        .setHandleFileUploads(true)
-        .setMergeFormAttributes(true)
+        .setUploadsDirectory("uploads") //Carpeta donde se guardarán los archivos dentro del proyecto
+        .setBodyLimit(INT_BODY_LIMIT) // limite del archivo en bytes
+        .setHandleFileUploads(true) //flag para activar manejo de archivos
+        .setMergeFormAttributes(true) //Por defecto es true pero lo pongo como ejemplo
       )
       .failureHandler(handleFailure());
-    FileRestApi.attach(restApi);
+    FileManagementRestApi.attach(restApi);
 
     vertx.createHttpServer()
       .requestHandler(restApi)

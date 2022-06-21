@@ -1,7 +1,6 @@
 package com.fileUpload.starter.api;
 
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -10,25 +9,19 @@ import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
-public class PostFileUpload  implements Handler<RoutingContext> {
-  private static final Logger LOG = LoggerFactory.getLogger(PostFileUpload.class);
+public class PostFileManagmentHandler implements Handler<RoutingContext> {
+  private static final Logger LOG = LoggerFactory.getLogger(PostFileManagmentHandler.class);
 
   @Override
   public void handle(final RoutingContext routingContext) {
     FileSystem fileSystem = routingContext.vertx().fileSystem();
     List<FileUpload> uploads = routingContext.fileUploads();
-    String fileName = "";
+    String fileName = null;
     // multipart form field: file upload section.
     for(FileUpload fileUpload : uploads) {
-      // we actually upload to a file with a generated filename
+      // we actually upload to a file with a generated filename, logic must be added to change the name
       try {
         fileName = fileUpload.fileName();
         LOG.info("uploaded file detected for field name {}, fielsize {}, dataContentType {}",fileName , fileUpload.size(),fileUpload.contentType());
@@ -38,12 +31,8 @@ public class PostFileUpload  implements Handler<RoutingContext> {
         routingContext.fail(e);
       }
     }
-
-    final JsonArray response = new JsonArray();
-    response
-      .add(new JsonObject().put("Archivo subido", fileName ));
-    routingContext.response().end(response.toBuffer());
-
+    String response = String.valueOf(new JsonObject().put("Archivo subido", fileName));
+    routingContext.response().putHeader("content-type", "application/json").end(response);
   }
 
   private String handleOneFile(FileSystem fs, FileUpload upload) {
@@ -70,7 +59,5 @@ public class PostFileUpload  implements Handler<RoutingContext> {
     }
     return true;
   }
-
-
 
 }
