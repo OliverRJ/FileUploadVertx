@@ -1,10 +1,8 @@
 package com.fileUpload.starter.api;
 
-import com.fileUpload.starter.RestApiVerticle;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
 
-public class FileRestApi {
+public class FileManagement {
   private static final int INT_BODY_LIMIT = 1024 * 1024 * 2; //2 MB
   public static void attach(Router parent) {
     final String path = "/upload";
