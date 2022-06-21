@@ -2,7 +2,6 @@ package com.fileUpload.starter.api;
 
 import io.vertx.core.Handler;
 import io.vertx.core.file.FileSystem;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
@@ -39,25 +38,10 @@ public class PostFileManagmentHandler implements Handler<RoutingContext> {
     String uploadedFile = upload.uploadedFileName();
     String root = uploadedFile.substring(0,uploadedFile.lastIndexOf("\\") );
     String newDestination = root + "/" + upload.fileName();
-    fs.moveBlocking(uploadedFile, newDestination);
+    fs.moveBlocking(uploadedFile, newDestination); // Blocking version of move(String, String, Handler)
+    //fs.move(uploadedFile, newDestination);
     LOG.info("uploadedFile: {} and newDestination: {}", uploadedFile, newDestination);
     return newDestination;
-  }
-
-  private boolean isHandleUpload(FileUpload upload, String startKey) {
-    LOG.info(
-      "CHECKING: " + upload.uploadedFileName() + " | fileName: " + upload.fileName() + " | name: " + upload.name());
-    String fieldName = upload.name().toLowerCase();
-    if (upload.size() <= 0) {
-      LOG.info("NOT HANDLED: upload size is zero: " + upload.uploadedFileName() + " | fileName" + upload.fileName()
-        + " | " + upload.name());
-      return false;
-    }
-    if (!fieldName.startsWith(startKey)) {
-      LOG.info("NOT HANDLED: fieldname does not start with:" + startKey + " | " + fieldName);
-      return false;
-    }
-    return true;
   }
 
 }
