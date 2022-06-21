@@ -28,7 +28,16 @@ public class RestApiVerticle extends AbstractVerticle {
       .setBodyLimit(INT_BODY_LIMIT)
       .setHandleFileUploads(true));
     restApi.route("/").handler( routingContext -> {
-      routingContext.response().putHeader("content-type", "text/html").end("<form action=\"/form\" method=\"post\" enctype=\"multipart/form-data\">\n" + "    <div>\n" + "        <label for=\"name\">Select a file:</label>\n" + "        <input type=\"file\" name=\"file\" />\n" + "    </div>\n" + "    <div class=\"button\">\n" + "        <button type=\"submit\">Send</button>\n" + "    </div>" + "</form>");
+      routingContext.
+        response()
+          .putHeader("content-type", "text/html")
+        .end("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\">\n"
+          + "    <div>\n"
+          + "        <label for=\"name\">Select a file:</label>\n"
+          + "        <input type=\"file\" name=\"file\" />\n"
+          + "    </div>\n" + "    <div class=\"button\">\n"
+          + "        <button type=\"submit\">Send</button>\n"
+          + "    </div>" + "</form>");
     });
 
     restApi.route()
@@ -38,12 +47,6 @@ public class RestApiVerticle extends AbstractVerticle {
 
     vertx.createHttpServer()
       .requestHandler(restApi)
-     /* .requestHandler(request ->{
-        request.setExpectMultipart(true);
-        request.uploadHandler(upload -> {
-          LOG.info("file name:",upload.name());
-        });
-      })*/
       .exceptionHandler(error -> LOG.error("Http server error:" + error))
       .listen(8888, http -> {
         if (http.succeeded()) {
